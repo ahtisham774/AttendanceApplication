@@ -1,0 +1,125 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+
+<div class="jumbotron maindiv">
+    <div class="classAttendance">
+        <label for="Attendance">Attendance Date:</label>
+        <label for="Attendance" id="date" class="form-control" ></label>
+    </div>
+    <button class="form-control" style="width:300px;color:white;background:black;" onclick="mark()">Mark</button>
+</div>
+<hr />
+<div class="jumbotron">
+    <table class="table" id="students">
+        <thead style="color:white;background:black;"  id="head">
+            <tr>
+                <th scope="col">Registration Number</th>
+                <th scope="col">Name</th>
+                <th scope="col">Status</th>
+                <th scope="col" id="present" onclick="presentClick()">Present</th>
+                <th scope="col" id="absent" onclick="absentClick()">Absent</th>
+            </tr>
+        </thead>
+    </table>
+</div>
+
+@section scripts{
+    
+<script>
+
+
+    let id = window.location.search.split('?')[1];
+    var classAttendance = {
+        "url": "https://localhost:44393/api/ClassAttendanceApi/valueAt?index=1",
+        "method": "GET",
+        "timeout": 0,
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "data": "<file contents here>"
+    };
+
+    $.ajax(classAttendance).done(function (response) {
+        console.log(response);
+        $("#date").text(new Date(response).toDateString());
+    });
+    let table = document.getElementById("students");
+    var data = [{
+        "id": 1,
+        "RegistrationNumber": "2020-CS-65",
+        "FirstName": "Ali",
+        "LastName": "Raza",
+        "Section":2
+    }]
+
+        var settings = {
+            "url": "https://localhost:44393/api/StudentApi/AllStudents",
+            "method": "GET",
+            "timeout": 0,
+            "headers": {
+                "Content-Type": "application/json"
+            },
+
+    };
+
+    let rowData = "";
+    $.ajax(settings).done(function (response) {
+        if (response) {
+            data = response;
+        }
+        
+        //console.log(data);
+        for (let i = 0; i < data.length; i++) {
+            if (data[i].LastName == null) {
+                rowData += "<tr><td>" + data[i].RegistrationNumber + "</td><td>" + data[i].FirstName + "</td><td id=\"status" + i + "\">None</td><td><input type=\"radio\" class=\"radio - inline\" id=\"present" + i + "\" onclick=\"isChecked(" + i + ")\"/></td><td><input type=\"radio\" class=\"radio - inline\"id=\"absent" + i +"\"/></td></tr>";
+            }
+            else {
+                rowData += "<tr><td>" + data[i].RegistrationNumber + "</td><td>" + data[i].FirstName + " " + data[i].LastName + "</td><td id=\"status" + i + "\">None</td><td><input type=\"radio\" class=\"radio - inline\" id=\"present" + i + "\" onclick=\"isChecked(" + i + ")\"/></td><td><input type=\"radio\" class=\"radio - inline\"id=\"absent" + i +"\"/></td></tr>";
+            }
+            console.log(data[i]);
+            
+        }
+        console.log(table.innerHTML += rowData);
+    });
+    function isChecked(i) {
+
+        $("#present" + i + "").change(function () {
+            $("#status" + i + "").text("Present");
+            $("#absent" + i + "").prop("checked", false);
+            
+
+        })
+        $("#absent" + i + "").change(function () {
+            $("#status" + i + "").text("Absent");
+            $("#present" + i + "").prop("checked", false);
+        })
+
+    }
+
+    function presentClick() {
+        for (let i = 0; i < data.length; i++) {
+            $("#status" + i + "").text("Present");
+            $("#present" + i + "").prop("checked", true);
+            $("#absent" + i + "").prop("checked", false);
+        }
+
+    }
+    function absentClick() {
+        for (let i = 0; i < data.length; i++) {
+            $("#status" + i + "").text("Absent");
+            $("#absent" + i + "").prop("checked", true);
+            $("#present" + i + "").prop("checked", false);
+        }
+    }
+
+    function mark() {
+
+        for (let i = 0; i < data.length; i++) {
+
+            console.log(data[i].id + "\n" + data[i].RegistrationNumber + "\n" + $("#status" + i).text());
+        }
+    }
+</script>    
+
+}
